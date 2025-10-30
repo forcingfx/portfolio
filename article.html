@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Article — Arjun</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Marked: small Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header><a href="./">← All posts</a></header>
+  <main id="content">Loading…</main>
+  <footer>© <span id="year"></span> Arjun</footer>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('post');
+    const mdPath = `posts/${slug}.md`;
+
+    async function load() {
+      try {
+        const res = await fetch(mdPath);
+        if (!res.ok) throw new Error('Not found');
+        const md = await res.text();
+        const html = marked.parse(md, { mangle:false, headerIds:true });
+        document.getElementById('content').innerHTML = html;
+
+        // Set <title> from first heading if present
+        const h1 = document.querySelector('#content h1');
+        if (h1) document.title = `${h1.textContent} — Arjun`;
+      } catch (e) {
+        document.getElementById('content').innerHTML = '<p>Post not found.</p>';
+      } finally {
+        document.getElementById('year').textContent = new Date().getFullYear();
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
